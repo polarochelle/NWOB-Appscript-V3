@@ -1,0 +1,2640 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+ <base target="_top">
+ <meta charset="UTF-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1">
+ <title>Tribe NWOB Structure | VMO Resource Management</title>
+
+ <!-- Google Fonts Import -->
+ <link rel="preconnect" href="https://fonts.googleapis.com">
+ <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+ <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+ <script>
+ window.APP_DATA = <?!= JSON.stringify(getDashboardData()).replace(/</g, '\\u003c') ?>;
+ </script>
+
+ <style>
+ :root {
+   --bg: #f8fafc;
+   --glass-bg: rgba(255, 255, 255, 0.65);
+   --glass-border: rgba(255, 255, 255, 0.8);
+   --glass-shadow: 0 10px 30px -5px rgba(15, 23, 42, 0.05), 0 4px 12px -2px rgba(15, 23, 42, 0.03);
+   
+   --text-main: #0f172a;
+   --text-muted: #64748b;
+   
+   --primary-blue: #2563eb;
+   --primary-violet: #7c3aed;
+   
+   --green-text: #166534;
+   --green-bg: rgba(220, 252, 231, 0.8);
+   --orange-text: #9a3412;
+   --orange-bg: rgba(255, 237, 213, 0.7);
+   --red-border: #fca5a5;
+
+   --blue-pill-bg: rgba(224, 242, 254, 0.8);
+   --blue-pill-text: #0284c7;
+
+   --bau-gray-bg: rgba(226, 232, 240, 0.75);
+   --bau-gray-border: rgba(203, 213, 225, 0.9);
+   --bau-gray-text: #475569;
+
+   --dark-blue-header: #0d47a1;
+   --role-header-blue: #1565c0;
+   --pod-group-blue: #0288d1;
+ }
+
+ * { 
+   box-sizing: border-box;
+   font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+ }
+
+ body {
+   margin: 0;
+   background-color: var(--bg);
+   color: var(--text-main);
+   line-height: 1.5;
+   min-height: 100vh;
+   position: relative;
+   overflow-x: hidden;
+ }
+
+ body::before, body::after {
+   content: '';
+   position: fixed;
+   border-radius: 50%;
+   filter: blur(90px);
+   z-index: -1;
+   pointer-events: none;
+ }
+ body::before {
+   width: 600px;
+   height: 600px;
+   background: radial-gradient(circle, rgba(37, 99, 235, 0.15) 0%, rgba(124, 58, 237, 0.12) 100%);
+   top: -100px;
+   left: -100px;
+ }
+ body::after {
+   width: 700px;
+   height: 700px;
+   background: radial-gradient(circle, rgba(16, 185, 129, 0.12) 0%, rgba(37, 99, 235, 0.1) 100%);
+   bottom: -150px;
+   right: -150px;
+ }
+
+ .app-layout {
+   max-width: 1180px;
+   margin: 20px auto 0;
+   padding: 0 24px 64px;
+ }
+
+ /* --- TOP PAGE LEVEL GLASS TABS --- */
+ .page-tab-header {
+   display: flex;
+   gap: 8px;
+   padding-left: 8px;
+   position: relative;
+   z-index: 10;
+ }
+
+ .page-tab-btn {
+   border: 1px solid var(--glass-border);
+   border-bottom: none;
+   background: rgba(255, 255, 255, 0.45);
+   backdrop-filter: blur(12px);
+   -webkit-backdrop-filter: blur(12px);
+   color: var(--text-muted);
+   padding: 10px 24px;
+   font-size: 14px;
+   font-weight: 700;
+   border-radius: 14px 14px 0 0;
+   cursor: pointer;
+   display: inline-flex;
+   align-items: center;
+   gap: 8px;
+   transition: all 0.2s ease;
+ }
+
+ .page-tab-btn:hover {
+   background: rgba(255, 255, 255, 0.75);
+   color: var(--primary-blue);
+ }
+
+ .page-tab-btn.active {
+   background: rgba(255, 255, 255, 0.85);
+   color: var(--text-main);
+   box-shadow: 0 -4px 12px rgba(15, 23, 42, 0.03);
+   margin-bottom: -1px;
+   padding-bottom: 11px;
+ }
+
+ .dot-indicator {
+   width: 8px;
+   height: 8px;
+   border-radius: 50%;
+   background-color: #cbd5e1;
+   display: inline-block;
+   flex-shrink: 0;
+ }
+
+ .page-tab-btn.active .dot-indicator {
+   background-color: var(--primary-blue);
+   box-shadow: 0 0 8px rgba(37, 99, 235, 0.5);
+ }
+
+ .shell {
+   background: var(--glass-bg);
+   backdrop-filter: blur(16px);
+   -webkit-backdrop-filter: blur(16px);
+   border: 1px solid var(--glass-border);
+   border-radius: 0 16px 16px 16px;
+   padding: 24px;
+   box-shadow: var(--glass-shadow);
+   position: relative;
+   z-index: 5;
+ }
+
+ .page-view { display: none; }
+ .page-view.active { display: block; }
+
+ .hero {
+   padding: 16px 22px;
+   border-radius: 14px;
+   background: linear-gradient(135deg, rgba(37, 99, 235, 0.9) 0%, rgba(124, 58, 237, 0.85) 100%);
+   backdrop-filter: blur(16px);
+   -webkit-backdrop-filter: blur(16px);
+   border: 1px solid rgba(255, 255, 255, 0.4);
+   box-shadow: 0 10px 20px -10px rgba(37, 99, 235, 0.25);
+   color: #ffffff;
+ }
+
+ .hero-meta {
+   display: flex;
+   align-items: center;
+   gap: 8px;
+   margin-bottom: 2px;
+ }
+
+ .brand, .hero .eyebrow {
+   font-size: 10px;
+   font-weight: 700;
+   letter-spacing: .08em;
+   text-transform: uppercase;
+ }
+
+ .brand { opacity: 0.9; }
+ .hero .eyebrow { color: rgba(255, 255, 255, 0.75); }
+ .meta-divider { font-size: 10px; opacity: 0.5; }
+
+ h1 { 
+   margin: 0; 
+   font-size: 22px; 
+   font-weight: 700;
+   letter-spacing: -0.01em;
+   line-height: 1.2;
+ }
+
+ .subhead { 
+   max-width: 760px; 
+   color: rgba(255, 255, 255, 0.85); 
+   font-size: 12px; 
+   margin-top: 3px;
+ }
+
+ .eyebrow, .label {
+   color: var(--text-muted);
+   font-size: 11px;
+   font-weight: 700;
+   letter-spacing: .11em;
+   text-transform: uppercase;
+ }
+
+ h2, h3 { 
+   margin: 0; 
+   line-height: 1.15; 
+   font-weight: 700;
+ }
+
+ h2 { 
+   font-size: 20px; 
+   color: var(--text-main);
+   letter-spacing: -0.01em;
+ }
+
+ .global-filter-bar {
+   position: sticky;
+   top: 16px;
+   z-index: 50;
+   margin-top: 16px;
+   padding: 12px 18px;
+   background: rgba(255, 255, 255, 0.85);
+   backdrop-filter: blur(20px);
+   -webkit-backdrop-filter: blur(20px);
+   border: 1px solid var(--glass-border);
+   border-radius: 12px;
+   box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.08);
+   display: flex;
+   flex-wrap: wrap;
+   align-items: flex-start;
+   gap: 12px;
+ }
+
+ .filter-item {
+   display: flex;
+   flex-direction: column;
+   align-items: flex-start;
+   gap: 4px;
+   flex: 1 1 180px;
+   position: relative;
+ }
+
+ .filter-item label {
+   white-space: nowrap;
+   font-size: 11px;
+   font-weight: 700;
+   color: var(--primary-blue);
+   letter-spacing: .05em;
+ }
+
+ .custom-multiselect {
+   width: 100%;
+   position: relative;
+ }
+
+ .select-box {
+   width: 100%;
+   border: 1px solid rgba(226, 232, 240, 0.8);
+   border-radius: 8px;
+   padding: 8px 12px;
+   color: var(--text-main);
+   background: rgba(255, 255, 255, 0.75);
+   font-size: 13px;
+   font-weight: 500;
+   cursor: pointer;
+   display: flex;
+   justify-content: space-between;
+   align-items: center;
+   transition: all 0.2s ease;
+   user-select: none;
+ }
+
+ .select-box:hover, .custom-multiselect.open .select-box {
+   background: #ffffff;
+   border-color: var(--primary-blue);
+   box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+ }
+
+ .select-box .text {
+   white-space: nowrap;
+   overflow: hidden;
+   text-overflow: ellipsis;
+   max-width: 150px;
+ }
+
+ .select-box .arrow {
+   font-size: 10px;
+   color: var(--text-muted);
+   transition: transform 0.2s ease;
+ }
+
+ .custom-multiselect.open .select-box .arrow {
+   transform: rotate(180deg);
+ }
+
+ .checkboxes-dropdown {
+   display: none;
+   position: absolute;
+   top: calc(100% + 4px);
+   left: 0;
+   right: 0;
+   background: rgba(255, 255, 255, 0.95);
+   backdrop-filter: blur(16px);
+   -webkit-backdrop-filter: blur(16px);
+   border: 1px solid var(--glass-border);
+   border-radius: 10px;
+   box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.15);
+   max-height: 220px;
+   overflow-y: auto;
+   z-index: 100;
+   padding: 6px;
+ }
+
+ .custom-multiselect.open .checkboxes-dropdown {
+   display: block;
+ }
+
+ .checkbox-option {
+   display: flex;
+   align-items: center;
+   gap: 8px;
+   padding: 6px 8px;
+   font-size: 12px;
+   font-weight: 600;
+   color: var(--text-main);
+   border-radius: 6px;
+   cursor: pointer;
+   transition: background 0.15s ease;
+ }
+
+ .checkbox-option:hover {
+   background: rgba(224, 242, 254, 0.6);
+   color: var(--primary-blue);
+ }
+
+ .checkbox-option input[type="checkbox"] {
+   width: 14px;
+   height: 14px;
+   accent-color: var(--primary-blue);
+   cursor: pointer;
+ }
+
+ .tabs {
+   display: inline-flex;
+   gap: 6px;
+   margin: 18px 0 10px;
+   padding: 4px;
+   border: 1px solid var(--glass-border);
+   border-radius: 999px;
+   background: rgba(255, 255, 255, 0.5);
+   backdrop-filter: blur(12px);
+   -webkit-backdrop-filter: blur(12px);
+ }
+
+ .tab {
+   border: 1px solid transparent;
+   border-radius: 999px;
+   padding: 6px 14px;
+   color: var(--text-muted);
+   background: transparent;
+   cursor: pointer;
+   font-weight: 600;
+   font-size: 12px;
+   transition: all 0.2s ease;
+ }
+
+ .tab.active { 
+   color: white; 
+   background: linear-gradient(135deg, var(--primary-blue), var(--primary-violet)); 
+   box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
+ }
+
+ .panel { display: none; }
+ .panel.active { display: block; }
+
+ .section { margin-top: 28px; }
+ 
+ .section-header {
+   display: flex;
+   justify-content: space-between;
+   align-items: flex-end;
+   margin-bottom: 12px;
+ }
+
+ .section-header-text { flex-grow: 1; }
+ .section-header .eyebrow { color: var(--primary-blue); }
+ .description { margin: 2px 0 0; color: var(--text-muted); font-size: 13px; }
+
+ .header-count-badge {
+   background: rgba(255, 255, 255, 0.8);
+   backdrop-filter: blur(12px);
+   border: 1px solid var(--glass-border);
+   border-radius: 999px;
+   padding: 4px 12px;
+   font-size: 12px;
+   font-weight: 600;
+   color: var(--primary-blue);
+   white-space: nowrap;
+   box-shadow: var(--glass-shadow);
+ }
+
+ .metrics {
+   display: grid;
+   grid-template-columns: repeat(3, 1fr);
+   gap: 14px;
+ }
+
+ .single-metric { 
+   display: grid; 
+   grid-template-columns: repeat(3, 1fr); 
+   gap: 14px; 
+ }
+
+ .metric, .card, .pod-card {
+   border: 1px solid var(--glass-border);
+   border-radius: 16px;
+   background: var(--glass-bg);
+   backdrop-filter: blur(16px);
+   -webkit-backdrop-filter: blur(16px);
+   box-shadow: var(--glass-shadow);
+ }
+
+ /* --- CENTERED METRIC CARD STYLES --- */
+ .metric {
+   min-height: 120px;
+   padding: 18px;
+   position: relative;
+   overflow: hidden;
+   display: flex;
+   flex-direction: column;
+   align-items: center;
+   justify-content: center;
+   text-align: center;
+ }
+ .metric::before {
+   content: '';
+   position: absolute;
+   top: 0; left: 0; right: 0;
+   height: 3px;
+   background: linear-gradient(90deg, var(--primary-blue), var(--primary-violet));
+ }
+
+ .metric-value {
+   margin-top: 8px;
+   color: var(--text-main);
+   font-size: 38px;
+   font-weight: 700;
+   line-height: 1;
+   text-align: center;
+ }
+
+ .scorecard-pills {
+   display: flex;
+   align-items: center;
+   justify-content: center;
+   gap: 8px;
+   margin-top: 12px;
+   width: 100%;
+ }
+
+ .pill {
+   padding: 4px 12px;
+   border-radius: 999px;
+   font-size: 12px;
+   font-weight: 700;
+   display: inline-flex;
+   align-items: center;
+ }
+
+ .pill-blue {
+   background: var(--blue-pill-bg);
+   color: var(--blue-pill-text);
+ }
+
+ .pill-green {
+   background: var(--green-bg);
+   color: var(--green-text);
+ }
+
+ .tag-pill {
+   padding: 2px 8px;
+   border-radius: 999px;
+   font-size: 10px;
+   font-weight: 700;
+   margin-left: 6px;
+   display: inline-flex;
+   align-items: center;
+   vertical-align: middle;
+ }
+ .tag-pill-organic {
+   background: var(--blue-pill-bg);
+   color: var(--blue-pill-text);
+ }
+ .tag-pill-inorganic {
+   background: var(--green-bg);
+   color: var(--green-text);
+ }
+
+ .metric-note { margin-top: 10px; color: var(--text-muted); font-size: 12px; }
+ .card { padding: 18px; }
+ .table-wrap { overflow-x: auto; }
+
+ .scrollable-10 {
+   max-height: 440px;
+   overflow-y: auto;
+ }
+
+ .scrollable-10 table thead th {
+   position: sticky;
+   top: 0;
+   z-index: 2;
+ }
+
+ table {
+   width: 100%;
+   border-collapse: collapse;
+   font-variant-numeric: tabular-nums;
+ }
+
+ th, td {
+   padding: 12px 14px;
+   border-bottom: 1px solid rgba(226, 232, 240, 0.6);
+   text-align: left;
+   vertical-align: middle;
+   font-size: 13px;
+   font-weight: 500;
+ }
+
+ td { color: var(--text-main); }
+
+ thead th {
+   color: var(--text-muted);
+   font-size: 11px;
+   font-weight: 700;
+   letter-spacing: .08em;
+   text-transform: uppercase;
+   background: rgba(241, 245, 249, 0.75);
+   backdrop-filter: blur(10px);
+ }
+
+ td.num, th.num { 
+   text-align: center !important; 
+   font-weight: 600;
+ }
+
+ tfoot th {
+   color: var(--text-main);
+   font-size: 13px;
+   font-weight: 700;
+   background: rgba(241, 245, 249, 0.9);
+ }
+
+ .pod-list-table { table-layout: fixed; }
+ .pod-list-table th, .pod-list-table td { width: 33.333%; vertical-align: middle; overflow-wrap: anywhere; }
+
+ .pod-item-bau {
+   display: inline-block;
+   padding: 4px 10px;
+   border-radius: 8px;
+   background: var(--bau-gray-bg);
+   border: 1px solid var(--bau-gray-border);
+   color: var(--bau-gray-text);
+   font-weight: 600;
+   font-size: 12px;
+ }
+
+ .hiring-pod-list {
+   margin: 0;
+   padding-left: 18px;
+   list-style-type: disc;
+ }
+
+ .hiring-pod-list li {
+   margin-bottom: 2px;
+   color: var(--text-main);
+ }
+
+ .condition-details {
+   margin: 14px 0;
+   overflow: hidden;
+   border: 1px solid var(--glass-border);
+   border-radius: 14px;
+   background: var(--glass-bg);
+   backdrop-filter: blur(16px);
+   box-shadow: var(--glass-shadow);
+ }
+
+ .condition-summary {
+   display: flex;
+   align-items: center;
+   justify-content: flex-start;
+   padding: 12px 16px;
+   cursor: pointer;
+   list-style: none;
+   font-weight: 600;
+   font-size: 13px;
+ }
+
+ .condition-summary::-webkit-details-marker { display: none; }
+
+ .condition-summary-text {
+   margin-left: auto;
+   margin-right: 10px;
+   color: var(--text-muted);
+   font-size: 11px;
+ }
+
+ .condition-summary::after {
+   content: "＋";
+   color: var(--primary-blue);
+   font-weight: bold;
+ }
+
+ .condition-details[open] .condition-summary::after { content: "−"; }
+
+ .condition-content { 
+   padding: 16px; 
+   border-top: 1px solid rgba(226, 232, 240, 0.6); 
+ }
+
+ .toolbar {
+   display: grid;
+   grid-template-columns: repeat(3, 1fr);
+   gap: 10px;
+   margin-bottom: 14px;
+ }
+
+ .toolbar-2-col { grid-template-columns: 1fr 1fr; }
+
+ .control { display: flex; flex-direction: column; gap: 4px; }
+
+ input, select {
+   width: 100%;
+   border: 1px solid rgba(226, 232, 240, 0.8);
+   border-radius: 8px;
+   padding: 8px 12px;
+   color: var(--text-main);
+   background: rgba(255, 255, 255, 0.75);
+   font-size: 13px;
+   font-weight: 500;
+   outline: none;
+   transition: all 0.2s ease;
+ }
+
+ input:hover, select:hover, input:focus, select:focus {
+   background: #ffffff;
+   border-color: var(--primary-blue);
+   box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+ }
+
+ .pod-groups { display: grid; gap: 18px; }
+
+ .pod-group > summary {
+   display: flex;
+   align-items: center;
+   margin-bottom: 10px;
+   padding: 10px 14px;
+   border-radius: 10px;
+   color: var(--text-main);
+   background: rgba(241, 245, 249, 0.75);
+   backdrop-filter: blur(10px);
+   cursor: pointer;
+   font-weight: 700;
+   font-size: 13px;
+   list-style: none;
+ }
+
+ .pod-group > summary::-webkit-details-marker { display: none; }
+
+ .pod-group > summary::after {
+   content: "＋";
+   color: var(--primary-blue);
+   margin-left: 10px;
+   font-weight: bold;
+ }
+
+ .pod-group[open] > summary::after { content: "−"; }
+
+ .pod-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; }
+ .pod-card { padding: 16px; }
+ .pod-card.incomplete { border-color: var(--red-border); }
+ .pod-header { display: flex; justify-content: space-between; gap: 10px; }
+ .pod-name { font-size: 15px; font-weight: 700; }
+ .pod-tribe { color: var(--text-muted); font-size: 11px; margin-top: 1px; }
+
+ .status {
+   height: fit-content;
+   padding: 3px 10px;
+   border-radius: 999px;
+   font-size: 10px;
+   font-weight: 700;
+   white-space: nowrap;
+ }
+
+ .status.complete { color: var(--green-text); background: var(--green-bg); }
+ .status.incomplete { color: var(--orange-text); background: var(--orange-bg); }
+
+ .scorecard { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; margin: 14px 0; }
+ .score { 
+   min-height: 60px; 
+   padding: 8px; 
+   border: 1px solid rgba(226, 232, 240, 0.8); 
+   border-radius: 10px; 
+   background: rgba(255, 255, 255, 0.5); 
+ }
+ .score-number { 
+   font-size: 17px; 
+   font-weight: 700; 
+   color: var(--text-main);
+ }
+ .score-label { color: var(--text-muted); font-size: 9px; margin-top: 1px; }
+
+ .assignments { display: grid; gap: 6px; }
+
+ .assignment {
+   display: flex;
+   justify-content: space-between;
+   align-items: center;
+   gap: 8px;
+   padding: 8px 10px;
+   border: 1px solid rgba(226, 232, 240, 0.8);
+   border-radius: 8px;
+   background: rgba(255, 255, 255, 0.6);
+ }
+
+ .assignment-name { font-size: 12px; font-weight: 600; overflow-wrap: anywhere; display: inline-flex; align-items: center; }
+ .assignment-role { color: var(--text-muted); font-size: 11px; text-align: right; }
+ .empty { padding: 18px; color: var(--text-muted); text-align: center; font-size: 13px; }
+
+ .back-to-top {
+   position: fixed;
+   bottom: 20px;
+   right: 20px;
+   z-index: 99;
+   height: 38px;
+   padding: 0 16px;
+   border: 1px solid var(--glass-border);
+   border-radius: 999px;
+   color: var(--text-main);
+   background: rgba(255, 255, 255, 0.85);
+   backdrop-filter: blur(16px);
+   box-shadow: 0 8px 20px -5px rgba(15, 23, 42, 0.15);
+   cursor: pointer;
+   font-size: 12px;
+   font-weight: 700;
+   display: flex;
+   align-items: center;
+   gap: 6px;
+   transition: all 0.2s ease;
+ }
+
+ .back-to-top:hover {
+   background: #ffffff;
+   color: var(--primary-blue);
+   transform: translateY(-2px);
+   box-shadow: 0 12px 25px -5px rgba(37, 99, 235, 0.2);
+ }
+
+ .deck-table-container {
+   width: 100%;
+   overflow-x: auto;
+   margin-bottom: 32px;
+   border: 1px solid var(--glass-border);
+   border-radius: 14px;
+   background: var(--glass-bg);
+   backdrop-filter: blur(16px);
+   -webkit-backdrop-filter: blur(16px);
+   box-shadow: var(--glass-shadow);
+ }
+
+ .deck-table {
+   width: 100%;
+   border-collapse: collapse;
+ }
+
+ .deck-table col.col-role {
+   width: 220px;
+ }
+
+ .deck-table th, .deck-table td {
+   border: 1px solid rgba(226, 232, 240, 0.8);
+   padding: 10px 14px;
+   text-align: center;
+   font-size: 13px;
+   font-weight: 600;
+   vertical-align: middle;
+ }
+
+ .tribe-header-banner {
+   background: linear-gradient(135deg, rgba(37, 99, 235, 0.95) 0%, rgba(124, 58, 237, 0.9) 100%);
+   color: #ffffff;
+   font-size: 16px;
+   font-weight: 800;
+   letter-spacing: .04em;
+   padding: 14px !important;
+   text-transform: uppercase;
+ }
+
+ .role-header-col {
+   background: rgba(241, 245, 249, 0.85);
+   backdrop-filter: blur(10px);
+   color: var(--primary-blue);
+   width: 220px;
+   font-size: 12px;
+   font-weight: 800;
+   text-transform: uppercase;
+   letter-spacing: .04em;
+   text-align: center !important;
+ }
+
+ .pod-group-box {
+   background: rgba(224, 242, 254, 0.7);
+   color: var(--blue-pill-text);
+   text-align: left !important;
+   vertical-align: top !important;
+   padding: 12px !important;
+ }
+
+ .pod-group-box ul {
+   margin: 0;
+   padding-left: 18px;
+   list-style-type: disc;
+ }
+
+ .pod-group-box li {
+   margin-bottom: 3px;
+   font-size: 12px;
+   font-weight: 600;
+   color: var(--text-main);
+ }
+
+ .pod-item-header {
+   background: var(--blue-pill-bg);
+   color: var(--blue-pill-text);
+   font-size: 12px;
+   font-weight: 700;
+   padding: 10px !important;
+   word-break: break-word;
+ }
+
+ .merged-val-cell {
+   background: rgba(255, 255, 255, 0.85);
+   color: var(--text-main);
+   font-size: 13px;
+   font-weight: 600;
+ }
+
+ .empty-cell {
+   color: var(--text-muted);
+   font-weight: 500;
+   font-size: 12px;
+   background: rgba(248, 250, 252, 0.5);
+ }
+
+ .section-title-divider {
+   font-size: 14px;
+   font-weight: 800;
+   color: var(--primary-blue);
+   margin: 28px 0 14px;
+   text-transform: uppercase;
+   letter-spacing: .08em;
+ }
+
+ @media (max-width: 850px) {
+   .hero { display: block; }
+   .metrics, .pod-grid, .single-metric { grid-template-columns: 1fr; }
+   .scorecard { grid-template-columns: repeat(2, 1fr); }
+   .toolbar, .toolbar-2-col, .global-filter-bar { grid-template-columns: 1fr; }
+ }
+
+ @media (max-width: 600px) {
+   .assignment { display: block; }
+   .assignment-role { margin-top: 2px; text-align: left; }
+ }
+ </style>
+</head>
+
+<body>
+ <div class="app-layout">
+   <!-- TOP PAGE LEVEL GLASS TABS -->
+   <nav class="page-tab-header">
+     <button class="page-tab-btn active" data-page="overview">
+       <span class="dot-indicator"></span>
+       <span>Overview</span>
+     </button>
+     <button class="page-tab-btn" data-page="tribe-structure">
+       <span class="dot-indicator"></span>
+       <span>Tribe Structure</span>
+     </button>
+   </nav>
+
+   <main class="shell">
+     <!-- SINGLE GLOBAL STICKY MULTI-SELECT FILTER BAR -->
+     <div class="global-filter-bar">
+       <div class="filter-item">
+         <label>SELECT TRIBE:</label>
+         <div class="custom-multiselect" id="ms-tribe">
+           <div class="select-box">
+             <span class="text">All Tribes</span>
+             <span class="arrow">▼</span>
+           </div>
+           <div class="checkboxes-dropdown"></div>
+         </div>
+       </div>
+
+       <div class="filter-item">
+         <label>POD Name:</label>
+         <div class="custom-multiselect" id="ms-pod">
+           <div class="select-box">
+             <span class="text">All PODs</span>
+             <span class="arrow">▼</span>
+           </div>
+           <div class="checkboxes-dropdown"></div>
+         </div>
+       </div>
+
+       <div class="filter-item">
+         <label>NWOB ROLE:</label>
+         <div class="custom-multiselect" id="ms-role">
+           <div class="select-box">
+             <span class="text">All Roles</span>
+             <span class="arrow">▼</span>
+           </div>
+           <div class="checkboxes-dropdown"></div>
+         </div>
+       </div>
+
+       <div class="filter-item">
+         <label>A&amp;E Chap Lead:</label>
+         <div class="custom-multiselect" id="ms-chap-lead">
+           <div class="select-box">
+             <span class="text">All A&amp;E CL</span>
+             <span class="arrow">▼</span>
+           </div>
+           <div class="checkboxes-dropdown"></div>
+         </div>
+       </div>
+
+       <div class="filter-item">
+         <label>NWOB TYPE:</label>
+         <div class="custom-multiselect" id="ms-nwob-type">
+           <div class="select-box">
+             <span class="text">All Types</span>
+             <span class="arrow">▼</span>
+           </div>
+           <div class="checkboxes-dropdown"></div>
+         </div>
+       </div>
+     </div>
+
+     <!-- PAGE 1: OVERVIEW PAGE -->
+     <div id="overview-page" class="page-view active" style="margin-top: 16px;">
+       <header class="hero">
+         <div>
+           <div class="hero-meta">
+             <span class="brand">GCash / VMO Resource Management</span>
+             <span class="meta-divider">•</span>
+             <span class="eyebrow">Resource Governance / POD Readiness</span>
+           </div>
+           <h1>Tribe NWOB Structure</h1>
+           <p class="subhead">Resource coverage, Builder readiness, and assignment detail across Tribes.</p>
+         </div>
+       </header>
+
+       <nav class="tabs">
+         <button class="tab active" data-tab="overview">Overview</button>
+         <button class="tab" data-tab="sources">Sources &amp; Logic</button>
+       </nav>
+
+       <section id="overview-panel" class="panel active">
+         <div id="metrics" class="metrics"></div>
+
+         <section class="section">
+           <div class="section-header">
+             <div class="section-header-text">
+               <div class="eyebrow">Table 1 / Role Headcount</div>
+               <h2>Resource headcount by role</h2>
+               <p class="description">Active resources and resources to be hired.</p>
+             </div>
+           </div>
+
+           <div class="card table-wrap scrollable-10">
+             <table>
+               <thead>
+                 <tr>
+                   <th>NEW NWOB ROLE</th>
+                   <th class="num">HC. of Total Active Resources</th>
+                   <th class="num">HC. of Total To be Hire</th>
+                 </tr>
+               </thead>
+               <tbody id="role-table"></tbody>
+               <tfoot>
+                 <tr>
+                   <th>Total</th>
+                   <th id="role-active-total" class="num"></th>
+                   <th id="role-hire-total" class="num"></th>
+                 </tr>
+               </tfoot>
+             </table>
+           </div>
+         </section>
+
+         <section class="section">
+           <div class="section-header">
+             <div class="section-header-text">
+               <div class="eyebrow">Table 2 / Resource Assignments</div>
+               <h2>List of Resources</h2>
+             </div>
+           </div>
+
+           <div class="card">
+             <div class="toolbar">
+               <div class="control">
+                 <label class="label" for="role-filter">NEW NWOB ROLE</label>
+                 <select id="role-filter"></select>
+               </div>
+               <div class="control">
+                 <label class="label" for="pod-assignment-filter">POD ASSIGNMENT</label>
+                 <select id="pod-assignment-filter"></select>
+               </div>
+               <div class="control">
+                 <label class="label" for="resource-name-filter">RESOURCE NAME</label>
+                 <input id="resource-name-filter" type="search" placeholder="Filter by resource name...">
+               </div>
+             </div>
+
+             <div style="margin-bottom: 12px;" id="resource-allocation-summary"></div>
+
+             <div class="table-wrap scrollable-10">
+               <table>
+                 <thead>
+                   <tr>
+                     <th>TRIBE ASSIGNMENT</th>
+                     <th>RESOURCE NAME</th>
+                     <th>NEW NWOB ROLE</th>
+                     <th>POD ASSIGNMENT</th>
+                     <th class="num">ALLOCATION</th>
+                   </tr>
+                 </thead>
+                 <tbody id="resource-table"></tbody>
+                 <tfoot>
+                   <tr>
+                     <th colspan="4">Total Allocation</th>
+                     <th id="resource-table-total-allocation" class="num"></th>
+                   </tr>
+                 </tfoot>
+               </table>
+             </div>
+           </div>
+         </section>
+
+         <section class="section">
+           <div class="section-header">
+             <div class="section-header-text">
+               <div class="eyebrow">Hiring Needs</div>
+               <h2>Roles To Be Hired</h2>
+             </div>
+           </div>
+
+           <div class="card table-wrap">
+             <table>
+               <thead>
+                 <tr>
+                   <th>Role</th>
+                   <th class="num">Headcount to Hire</th>
+                   <th>Target POD Assignment</th>
+                 </tr>
+               </thead>
+               <tbody id="hiring-table"></tbody>
+             </table>
+           </div>
+         </section>
+
+         <section class="section">
+           <div class="section-header">
+             <div class="section-header-text">
+               <div class="eyebrow">Scorecard / PODs</div>
+               <h2>POD scorecard</h2>
+             </div>
+           </div>
+           <div id="pod-scorecard" class="single-metric"></div>
+         </section>
+
+         <section class="section">
+           <div class="section-header">
+             <div class="section-header-text">
+               <div class="eyebrow">Table 3 / POD List</div>
+               <h2>List of PODs</h2>
+               <p class="description">Unique POD names from the NEW POD column, sorted alphabetically.</p>
+             </div>
+             <div class="header-count-badge" id="pod-list-total-badge">
+               Total PODs: 0
+             </div>
+           </div>
+
+           <div class="card">
+             <div class="toolbar toolbar-2-col">
+               <div class="control">
+                 <label class="label" for="pod-list-role-filter">NEW NWOB ROLE</label>
+                 <select id="pod-list-role-filter"></select>
+               </div>
+               <div class="control">
+                 <label class="label" for="pod-name-search-filter">POD NAME</label>
+                 <input id="pod-name-search-filter" type="search" placeholder="Filter by POD name...">
+               </div>
+             </div>
+
+             <div class="table-wrap scrollable-10">
+               <table class="pod-list-table">
+                 <thead>
+                   <tr>
+                     <th colspan="3">POD NAME</th>
+                   </tr>
+                 </thead>
+                 <tbody id="pod-list"></tbody>
+               </table>
+             </div>
+           </div>
+         </section>
+
+         <section class="section">
+           <div class="section-header">
+             <div class="section-header-text">
+               <div class="eyebrow">POD Conditions</div>
+               <h2>POD Completeness Conditions</h2>
+             </div>
+           </div>
+
+           <details class="condition-details" id="condition-details-el">
+             <summary class="condition-summary">
+               <span>Readiness Rules</span>
+               <span class="condition-summary-text" id="condition-summary-state">Click to collapse</span>
+             </summary>
+
+             <div class="condition-content table-wrap">
+               <table>
+                 <thead>
+                   <tr>
+                     <th>Condition</th>
+                     <th>POD Complete When</th>
+                     <th>POD Incomplete When</th>
+                   </tr>
+                 </thead>
+                 <tbody>
+                   <tr>
+                     <td>No TBD Resource Name</td>
+                     <td>No resource name contains TBD.</td>
+                     <td>Any resource name contains TBD.</td>
+                   </tr>
+                   <tr>
+                     <td>Required Roles</td>
+                     <td>Solutions Designer, Quality Assurance Lead, Scrum Master, Lead Builder, and Builder have positive allocation.</td>
+                     <td>Any required role has no allocation.</td>
+                   </tr>
+                   <tr>
+                     <td>Lead Builder Count</td>
+                     <td>Exactly 1 Lead Builder.</td>
+                     <td>Not exactly 1 Lead Builder.</td>
+                   </tr>
+                   <tr>
+                     <td>Builder Count</td>
+                     <td>Exactly 2 Builders. GBOX may have 2 or fewer.</td>
+                     <td>Non-GBOX POD does not have exactly 2 Builders.</td>
+                   </tr>
+                 </tbody>
+               </table>
+             </div>
+           </details>
+         </section>
+
+         <section class="section">
+           <div class="section-header">
+             <div class="section-header-text">
+               <div class="eyebrow">POD Assignments</div>
+               <h2>Resource Assignment by POD</h2>
+             </div>
+           </div>
+
+           <div class="toolbar toolbar-2-col">
+             <div class="control">
+               <label class="label" for="pod-search">Search POD or Resource</label>
+               <input id="pod-search" type="search" placeholder="Type to filter...">
+             </div>
+
+             <div class="control">
+               <label class="label" for="status-filter">Readiness</label>
+               <select id="status-filter">
+                 <option value="all">All PODs</option>
+                 <option value="complete">POD Complete</option>
+                 <option value="incomplete">POD Incomplete</option>
+               </select>
+             </div>
+           </div>
+
+           <div class="pod-groups">
+             <details class="pod-group" id="complete-group" open>
+               <summary>
+                 <span>POD Complete <span id="complete-count"></span></span>
+                 <span class="condition-summary-text" id="complete-state">Click to collapse</span>
+               </summary>
+               <div id="complete-grid" class="pod-grid"></div>
+             </details>
+
+             <details class="pod-group" id="incomplete-group" open>
+               <summary>
+                 <span>POD Incomplete <span id="incomplete-count"></span></span>
+                 <span class="condition-summary-text" id="incomplete-state">Click to collapse</span>
+               </summary>
+               <div id="incomplete-grid" class="pod-grid"></div>
+             </details>
+           </div>
+         </section>
+
+         <section class="section">
+           <div class="section-header">
+             <div class="section-header-text">
+               <div class="eyebrow">BAU Conditions</div>
+               <h2>BAU Completeness Conditions</h2>
+             </div>
+           </div>
+
+           <details class="condition-details" id="bau-condition-details-el">
+             <summary class="condition-summary">
+               <span>Readiness Rules</span>
+               <span class="condition-summary-text" id="bau-condition-summary-state">Click to collapse</span>
+             </summary>
+
+             <div class="condition-content table-wrap">
+               <table>
+                 <thead>
+                   <tr>
+                     <th>Condition</th>
+                     <th>BAU Complete When</th>
+                     <th>BAU Incomplete When</th>
+                   </tr>
+                 </thead>
+                 <tbody>
+                   <tr>
+                     <td>No TBD Resource Name</td>
+                     <td>No resource name contains TBD.</td>
+                     <td>Any resource name contains TBD.</td>
+                   </tr>
+                   <tr>
+                     <td>Required Roles</td>
+                     <td>Solutions Designer, Quality Assurance Lead, Scrum Master, and Developer, Data Engineer, or UiPath Developer have positive allocation.</td>
+                     <td>Any required role has no allocation.</td>
+                   </tr>
+                   <tr>
+                     <td>Developer or Data Engineer Count</td>
+                     <td>At least 1 Developer, Data Engineer, or UiPath Developer assigned.</td>
+                     <td>No Developer, Data Engineer, or UiPath Developer assigned.</td>
+                   </tr>
+                 </tbody>
+               </table>
+             </div>
+           </details>
+         </section>
+
+         <section class="section">
+           <div class="section-header">
+             <div class="section-header-text">
+               <div class="eyebrow">BAU Assignments</div>
+               <h2>Resource Assignment by BAU</h2>
+             </div>
+           </div>
+
+           <div class="toolbar toolbar-2-col">
+             <div class="control">
+               <label class="label" for="bau-search">Search BAU or Resource</label>
+               <input id="bau-search" type="search" placeholder="Type to filter...">
+             </div>
+
+             <div class="control">
+               <label class="label" for="bau-status-filter">Readiness</label>
+               <select id="bau-status-filter">
+                 <option value="all">All BAUs</option>
+                 <option value="complete">BAU Complete</option>
+                 <option value="incomplete">BAU Incomplete</option>
+               </select>
+             </div>
+           </div>
+
+           <div class="pod-groups">
+             <details class="pod-group" id="bau-complete-group" open>
+               <summary>
+                 <span>BAU Complete <span id="bau-complete-count"></span></span>
+                 <span class="condition-summary-text" id="bau-complete-state">Click to collapse</span>
+               </summary>
+               <div id="bau-complete-grid" class="pod-grid"></div>
+             </details>
+
+             <details class="pod-group" id="bau-incomplete-group" open>
+               <summary>
+                 <span>BAU Incomplete <span id="bau-incomplete-count"></span></span>
+                 <span class="condition-summary-text" id="bau-incomplete-state">Click to collapse</span>
+               </summary>
+               <div id="bau-incomplete-grid" class="pod-grid"></div>
+             </details>
+           </div>
+         </section>
+       </section>
+
+       <section id="sources-panel" class="panel">
+         <section class="section">
+           <div class="section-header">
+             <div class="section-header-text">
+               <div class="eyebrow">Sources / Methodology</div>
+               <h2>Dashboard source and logic</h2>
+             </div>
+           </div>
+           <div class="card">
+             <p><strong>Source:</strong> AI PODS Source File - Final</p>
+             <p><strong>Sheet:</strong> All Roles Editable</p>
+             <p><strong>Selected Tribe:</strong> <span id="sources-tribe-name">All Tribes</span></p>
+             <p><strong>Role order:</strong> Solutions Designer, Quality Assurance Lead, Scrum Master, Lead Builder, and Builder.</p>
+           </div>
+         </section>
+       </section>
+     </div>
+
+     <!-- PAGE 2: TRIBE STRUCTURE PAGE -->
+     <div id="tribe-structure-page" class="page-view" style="margin-top: 16px;">
+       <header class="hero">
+         <div>
+           <div class="hero-meta">
+             <span class="brand">GCash / VMO Resource Management</span>
+             <span class="meta-divider">•</span>
+             <span class="eyebrow">Tribe Structure Views</span>
+           </div>
+           <h1>Tribe Structure</h1>
+           <p class="subhead">Organizational role mapping across General and A&amp;E Chapter Lead views.</p>
+         </div>
+       </header>
+
+       <!-- METRIC CARDS ON TRIBE STRUCTURE TAB -->
+       <div id="ts-metrics" class="metrics" style="margin-top: 20px;"></div>
+
+       <!-- GENERAL STRUCTURE -->
+       <div class="section-title-divider">General Structure</div>
+       <div id="general-structure-container"></div>
+
+       <!-- A&E SPECIFIC STRUCTURE -->
+       <div class="section-title-divider">A&amp;E Chapter Lead Specific Structure</div>
+       <div id="ae-structure-container"></div>
+     </div>
+   </main>
+ </div>
+
+ <button id="back-to-top" class="back-to-top">
+   ↑ Back to Top
+ </button>
+
+ <script>
+ const rawData = window.APP_DATA || {};
+ let activeDashboardData = {};
+
+ const fmt0 = value => new Intl.NumberFormat('en-US', { maximumFractionDigits: 0 }).format(Number(value || 0));
+ const fmt2 = value => new Intl.NumberFormat('en-US', { maximumFractionDigits: 2 }).format(Number(value || 0));
+ const fmtAllocation = value => {
+   const number = Number(value || 0);
+   return Number.isInteger(number) ? fmt0(number) : number.toFixed(2);
+ };
+
+ const esc = value => String(value ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
+
+ function clean(value) { return value === null || value === undefined ? '' : String(value).trim(); }
+ function normalize(value) { return clean(value).toLowerCase().replace(/\s+/g, ' ').trim(); }
+ function normalizeRole(value) { return normalize(value).replace(/assurrance/g, 'assurance'); }
+ function isTBD(value) { return normalize(value).indexOf('tbd') !== -1; }
+
+ function roundHalfUp(value) {
+   const num = Number(value || 0);
+   const decimal = num % 1;
+   if (decimal >= 0.5) {
+     return Math.ceil(num);
+   }
+   return Math.floor(num);
+ }
+
+ function getEffectiveRole(roleL, roleH) {
+   const nwob = clean(roleL);
+   const source = clean(roleH);
+   const normNwob = normalizeRole(nwob);
+
+   if (!nwob || normNwob === 'others' || normNwob === 'other') {
+     return source || 'Role not specified';
+   }
+
+   if (normNwob === 'chapter lead' && source) {
+     return normalize(source).indexOf('chapter lead') !== -1 ? source : 'Chapter Lead - ' + source;
+   }
+
+   return nwob;
+ }
+
+ function round2(value) { return Math.round(value * 100) / 100; }
+
+ function roleRank(value) {
+   const role = normalizeRole(value);
+   
+   if (role.indexOf('chapter lead') !== -1 || role.indexOf('chap lead') !== -1) return 0;
+   
+   if (role === 'solutions designer' || role.indexOf('solutions designer') !== -1) return 1;
+   if (role === 'quality assurance lead' || role.indexOf('quality assurance') !== -1) return 2;
+   if (role === 'scrum master' || role.indexOf('scrum master') !== -1) return 3;
+   if (role.indexOf('data engineer') !== -1 || role.indexOf('uipath') !== -1) return 4;
+   if (role === 'lead builder') return 5;
+   if (role === 'builder') return 6;
+   
+   return 7;
+ }
+
+ function buildCustomMultiselect(containerId, options, defaultLabel, onChangeCallback) {
+   const container = document.getElementById(containerId);
+   if (!container) return;
+
+   const dropdown = container.querySelector('.checkboxes-dropdown');
+   const textSpan = container.querySelector('.select-box .text');
+
+   let selected = [];
+
+   function renderDropdown() {
+     dropdown.innerHTML = options.map((opt) => {
+       const checked = selected.includes(opt.value) ? 'checked' : '';
+       return `
+         <label class="checkbox-option">
+           <input type="checkbox" value="${esc(opt.value)}" ${checked}>
+           <span>${esc(opt.label)}</span>
+         </label>
+       `;
+     }).join('');
+
+     dropdown.querySelectorAll('input[type="checkbox"]').forEach(chk => {
+       chk.addEventListener('change', (e) => {
+         const val = e.target.value;
+         if (e.target.checked) {
+           if (!selected.includes(val)) selected.push(val);
+         } else {
+           selected = selected.filter(v => v !== val);
+         }
+         updateLabel();
+         onChangeCallback(selected);
+       });
+     });
+   }
+
+   function updateLabel() {
+     if (selected.length === 0) {
+       textSpan.textContent = defaultLabel;
+     } else if (selected.length === 1) {
+       const found = options.find(o => o.value === selected[0]);
+       textSpan.textContent = found ? found.label : selected[0];
+     } else {
+       textSpan.textContent = `${selected.length} Selected`;
+     }
+   }
+
+   container.querySelector('.select-box').addEventListener('click', (e) => {
+     e.stopPropagation();
+     document.querySelectorAll('.custom-multiselect').forEach(el => {
+       if (el !== container) el.classList.remove('open');
+     });
+     container.classList.toggle('open');
+   });
+
+   renderDropdown();
+   updateLabel();
+
+   return {
+     getSelected: () => selected,
+     setSelected: (vals) => { selected = vals; renderDropdown(); updateLabel(); },
+     updateOptions: (newOpts) => { options = newOpts; selected = []; renderDropdown(); updateLabel(); }
+   };
+ }
+
+ function matchesFilter(selectedValues, rowValue) {
+   if (!selectedValues || selectedValues.length === 0) return true;
+   return selectedValues.includes(rowValue);
+ }
+
+ function processData(selectedTribes, selectedPods, selectedRoles, selectedChapLeads, selectedNwobTypes) {
+   const rows = [];
+   const headcountRows = [];
+   const resourceAssignments = [];
+   const forHireByRole = {};
+
+   let allocationTotal = 0;
+   let forHireTotal = 0;
+
+   let totalOrg = 0;
+   let totalInorg = 0;
+   let activeOrg = 0;
+   let activeInorg = 0;
+   let forHireOrg = 0;
+   let forHireInorg = 0;
+
+   let totalLeadBuilders = 0;
+   let totalBuilders = 0;
+
+   (rawData.rawRows || []).forEach(row => {
+     const catQ = clean(row.categoryQ);
+     let nwobType = 'Others';
+     if (normalize(catQ) === 'pod') nwobType = 'POD';
+     else if (normalize(catQ) === 'bau') nwobType = 'BAU';
+
+     if (!matchesFilter(selectedTribes, row.tribe)) return;
+     if (!matchesFilter(selectedPods, row.pod)) return;
+     if (!matchesFilter(selectedChapLeads, row.aeChapLeadR)) return;
+     if (!matchesFilter(selectedNwobTypes, nwobType)) return;
+
+     const effectiveRole = getEffectiveRole(row.roleL, row.roleH);
+     if (selectedRoles && selectedRoles.length > 0) {
+       const roleMatch = selectedRoles.some(r => r === effectiveRole || r === row.roleL || r === row.roleH);
+       if (!roleMatch) return;
+     }
+
+     const tribe = row.tribe;
+     const pod = row.pod;
+     const resource = row.resource;
+     const allocation = row.allocation;
+     const roleH = row.roleH;
+     const roleL = row.roleL;
+     const empType = clean(row.empType);
+     const isOrganic = normalize(empType) === 'organic';
+
+     const normRoleL = normalizeRole(roleL);
+     if (normRoleL === 'lead builder') totalLeadBuilders += allocation;
+     if (normRoleL === 'builder') totalBuilders += allocation;
+
+     allocationTotal += allocation;
+     if (isOrganic) totalOrg += allocation;
+     else totalInorg += allocation;
+
+     if (isTBD(resource)) {
+       forHireTotal += allocation;
+       if (isOrganic) forHireOrg += allocation;
+       else forHireInorg += allocation;
+
+       const role = effectiveRole || 'Role not tagged';
+
+       if (!forHireByRole[role]) {
+         forHireByRole[role] = { headcount: 0, pods: {} };
+       }
+       forHireByRole[role].headcount += allocation;
+       if (pod && pod !== '-') {
+         forHireByRole[role].pods[pod] = true;
+       }
+     } else {
+       if (isOrganic) activeOrg += allocation;
+       else activeInorg += allocation;
+     }
+
+     headcountRows.push({ tribe, pod, resource, allocation, role_h: roleH, role_l: roleL, effective_role: effectiveRole, empType });
+     resourceAssignments.push({ tribe, resource, role: effectiveRole, pod: pod || '—', allocation, empType });
+
+     if (pod && pod !== '-') {
+       rows.push({ tribe, pod, resource, allocation, role_h: roleH, role_l: roleL, effective_role: effectiveRole, categoryQ: row.categoryQ, aeChapLeadR: row.aeChapLeadR, empType });
+     }
+   });
+
+   const podRowsOnly = rows.filter(r => normalize(r.categoryQ) === 'pod' || normalize(r.categoryQ) !== 'bau');
+   const podMap = {};
+   podRowsOnly.forEach(row => {
+     const key = row.tribe + '|||' + row.pod;
+     if (!podMap[key]) {
+       podMap[key] = { tribe: row.tribe, pod: row.pod, assignments: [] };
+     }
+     podMap[key].assignments.push(row);
+   });
+
+   const requiredRoles = ['solutions designer', 'quality assurance lead', 'scrum master', 'lead builder', 'builder'];
+   const scorecardRoles = [
+     ['Solutions Designer', 'solutions designer'],
+     ['Quality Assurance Lead', 'quality assurance lead'],
+     ['Scrum Master', 'scrum master'],
+     ['Lead Builder', 'lead builder'],
+     ['Builder', 'builder']
+   ];
+
+   function podIsComplete(assignments, podName) {
+     const noTBD = assignments.every(row => !isTBD(row.resource));
+     const requiredRolesHaveAllocation = requiredRoles.every(role =>
+       assignments.some(row => normalizeRole(row.role_l) === role && row.allocation > 0)
+     );
+     const leadBuilderCount = assignments.filter(row => normalizeRole(row.role_l) === 'lead builder' && row.allocation > 0).length;
+     const builderCount = assignments.filter(row => normalizeRole(row.role_l) === 'builder' && row.allocation > 0).length;
+     const builderRule = normalize(podName).indexOf('gbox') !== -1 ? builderCount <= 2 : builderCount === 2;
+     return noTBD && requiredRolesHaveAllocation && leadBuilderCount === 1 && builderRule;
+   }
+
+   const podCards = Object.keys(podMap)
+     .sort((a, b) => podMap[a].pod.localeCompare(podMap[b].pod))
+     .map(key => {
+       const pod = podMap[key];
+       const assignments = pod.assignments;
+
+       const roleScorecard = scorecardRoles.map(item => ({
+         role: item[0],
+         allocation: round2(
+           assignments.filter(row => normalizeRole(row.role_l) === item[1] && !isTBD(row.resource))
+                      .reduce((sum, row) => sum + row.allocation, 0)
+         )
+       }));
+
+       // FILTER OUT PRODUCT OWNER FROM POD ASSIGNMENT CARDS
+       const filteredAssignments = assignments.filter(row => 
+         normalize(row.effective_role) !== 'product owner' && 
+         normalize(row.role_l) !== 'product owner' && 
+         normalize(row.role_h) !== 'product owner'
+       );
+
+       const sortedAssignments = filteredAssignments.slice().sort((a, b) =>
+         roleRank(a.role_l) - roleRank(b.role_l) ||
+         a.effective_role.localeCompare(b.effective_role) ||
+         a.resource.localeCompare(b.resource)
+       );
+
+       return {
+         id: normalize(pod.tribe + '-' + pod.pod).replace(/[^a-z0-9]+/g, '-'),
+         tribe: pod.tribe,
+         pod: pod.pod,
+         lead_builder: assignments.filter(row => normalizeRole(row.role_l) === 'lead builder').length,
+         builder: assignments.filter(row => normalizeRole(row.role_l) === 'builder').length,
+         total_assignments: sortedAssignments.length,
+         target_met: podIsComplete(assignments, pod.pod),
+         role_scorecard: roleScorecard,
+         assignments: sortedAssignments.map(row => ({
+           resource: row.resource,
+           role_l: row.effective_role,
+           role_h: row.role_h || 'Role not specified',
+           allocation: row.allocation,
+           empType: row.empType
+         }))
+       };
+     });
+
+   const bauRows = (rawData.rawRows || []).filter(row => {
+     const isBau = normalize(row.categoryQ) === 'bau';
+     if (!isBau) return false;
+
+     if (!matchesFilter(selectedTribes, row.tribe)) return false;
+     if (!matchesFilter(selectedPods, row.pod)) return false;
+     if (!matchesFilter(selectedChapLeads, row.aeChapLeadR)) return false;
+
+     const effectiveRole = getEffectiveRole(row.roleL, row.roleH);
+     if (selectedRoles && selectedRoles.length > 0) {
+       const roleMatch = selectedRoles.some(r => r === effectiveRole || r === row.roleL || r === row.roleH);
+       if (!roleMatch) return false;
+     }
+
+     return true;
+   });
+
+   const bauMap = {};
+   bauRows.forEach(row => {
+     if (!row.pod || row.pod === '-') return;
+     const key = row.tribe + '|||' + row.pod;
+     if (!bauMap[key]) {
+       bauMap[key] = { tribe: row.tribe, pod: row.pod, assignments: [] };
+     }
+     bauMap[key].assignments.push(row);
+   });
+
+   function bauIsComplete(assignments) {
+     const noTBD = assignments.every(row => !isTBD(row.resource));
+     const hasSD = assignments.some(r => normalize(r.roleH).includes('solutions designer') && r.allocation > 0);
+     const hasQA = assignments.some(r => normalize(r.roleH).includes('quality assurance') && r.allocation > 0);
+     const hasSM = assignments.some(r => normalize(r.roleH).includes('scrum master') && r.allocation > 0);
+     const hasDevDataOrUiPath = assignments.some(r => {
+       const roleNorm = normalize(r.roleH);
+       return (roleNorm.includes('developer') || roleNorm.includes('data engineer') || roleNorm.includes('uipath')) && r.allocation > 0;
+     });
+     return noTBD && hasSD && hasQA && hasSM && hasDevDataOrUiPath;
+   }
+
+   const bauCards = Object.keys(bauMap)
+     .sort((a, b) => bauMap[a].pod.localeCompare(bauMap[b].pod))
+     .map(key => {
+       const item = bauMap[key];
+       const assignments = item.assignments;
+
+       // FILTER OUT PRODUCT OWNER FROM BAU ASSIGNMENT CARDS
+       const filteredAssignments = assignments.filter(row => 
+         normalize(getEffectiveRole(row.roleL, row.roleH)) !== 'product owner' && 
+         normalize(row.roleL) !== 'product owner' && 
+         normalize(row.roleH) !== 'product owner'
+       );
+
+       const sortedAssignments = filteredAssignments.slice().sort((a, b) => {
+         const effA = getEffectiveRole(a.roleL, a.roleH);
+         const effB = getEffectiveRole(b.roleL, b.roleH);
+         return roleRank(effA) - roleRank(effB) || effA.localeCompare(effB) || a.resource.localeCompare(b.resource);
+       });
+
+       return {
+         id: normalize(item.tribe + '-' + item.pod + '-bau').replace(/[^a-z0-9]+/g, '-'),
+         tribe: item.tribe,
+         pod: item.pod,
+         target_met: bauIsComplete(assignments),
+         assignments: sortedAssignments.map(row => ({
+           resource: row.resource,
+           role_h: getEffectiveRole(row.roleL, row.roleH),
+           allocation: row.allocation,
+           empType: row.empType
+         }))
+       };
+     });
+
+   const podCategoryMap = {};
+   (rawData.rawRows || []).forEach(row => {
+     const catQ = clean(row.categoryQ);
+     let nwobType = 'Others';
+     if (normalize(catQ) === 'pod') nwobType = 'POD';
+     else if (normalize(catQ) === 'bau') nwobType = 'BAU';
+
+     if (!matchesFilter(selectedTribes, row.tribe)) return;
+     if (!matchesFilter(selectedPods, row.pod)) return;
+     if (!matchesFilter(selectedChapLeads, row.aeChapLeadR)) return;
+     if (!matchesFilter(selectedNwobTypes, nwobType)) return;
+
+     const rRole = getEffectiveRole(row.roleL, row.roleH);
+     if (selectedRoles && selectedRoles.length > 0) {
+       const roleMatch = selectedRoles.some(r => r === rRole || r === row.roleL || r === row.roleH);
+       if (!roleMatch) return;
+     }
+
+     if (row.pod && row.pod !== '-') {
+       const cat = normalize(catQ) === 'bau' ? 'BAU' : 'POD';
+       if (!podCategoryMap[row.pod]) {
+         podCategoryMap[row.pod] = cat;
+       }
+     }
+   });
+
+   let podCount = 0;
+   let bauCount = 0;
+   Object.keys(podCategoryMap).forEach(podName => {
+     if (podCategoryMap[podName] === 'BAU') {
+       bauCount++;
+     } else {
+       podCount++;
+     }
+   });
+
+   const totalUniquePods = podCount + bauCount;
+
+   const uniquePods = [...new Set(rows.map(row => row.pod))].sort((a, b) => a.localeCompare(b));
+   const activeByRole = {};
+
+   headcountRows.forEach(row => {
+     if (isTBD(row.resource)) return;
+     const role = row.effective_role;
+     activeByRole[role] = (activeByRole[role] || 0) + row.allocation;
+   });
+
+   const activeRounded = {};
+   Object.keys(activeByRole).forEach(role => {
+     activeRounded[role] = roundHalfUp(activeByRole[role]);
+   });
+
+   const allRoles = [...new Set([...Object.keys(activeByRole), ...Object.keys(forHireByRole)])]
+     .sort((a, b) => roleRank(a) - roleRank(b) || a.localeCompare(b));
+
+   const roleHeadcountSummary = allRoles.map(role => ({
+     role,
+     active_resources: activeRounded[role] || 0,
+     to_be_hired: round2(forHireByRole[role] ? forHireByRole[role].headcount : 0)
+   }));
+
+   resourceAssignments.sort((a, b) =>
+     a.tribe.localeCompare(b.tribe) ||
+     a.resource.localeCompare(b.resource) ||
+     roleRank(a.role) - roleRank(b.role) ||
+     a.role.localeCompare(b.role) ||
+     a.pod.localeCompare(b.pod)
+   );
+
+   const completeCount = podCards.filter(card => card.target_met).length;
+
+   const activeResExact = headcountRows.filter(r => !isTBD(r.resource)).reduce((sum, r) => sum + r.allocation, 0);
+
+   return {
+     metrics: {
+       total_resources: roundHalfUp(allocationTotal),
+       total_active_resources: roundHalfUp(activeResExact),
+       total_assignments: rows.length,
+       total_pods: uniquePods.length,
+       total_unique_pods: totalUniquePods,
+       pod_type_count: podCount,
+       bau_type_count: bauCount,
+       total_for_hire: round2(forHireTotal),
+       total_organic: roundHalfUp(totalOrg),
+       total_inorganic: roundHalfUp(totalInorg),
+       active_organic: roundHalfUp(activeOrg),
+       active_inorganic: roundHalfUp(activeInorg),
+       for_hire_organic: round2(forHireOrg),
+       for_hire_inorganic: round2(forHireInorg),
+       total_lead_builders: roundHalfUp(totalLeadBuilders),
+       total_builders: roundHalfUp(totalBuilders)
+     },
+     role_headcount_summary: roleHeadcountSummary,
+     role_headcount_totals: { active_resources: roundHalfUp(activeResExact), to_be_hired: round2(forHireTotal) },
+     for_hire_role_breakdown: Object.keys(forHireByRole)
+       .sort((a, b) => roleRank(a) - roleRank(b) || a.localeCompare(b))
+       .map(role => ({
+         role,
+         headcount: round2(forHireByRole[role].headcount),
+         pod_assignments: Object.keys(forHireByRole[role].pods).sort()
+       })),
+     resource_assignments: resourceAssignments,
+     pod_list: uniquePods,
+     pod_raw_rows: rows,
+     builder_summary: {
+       target_lead: 1,
+       target_builder: 2,
+       pods_meeting_target: completeCount,
+       pods_needing_attention: podCards.length - completeCount,
+       total_pods: podCards.length
+     },
+     pod_cards: podCards,
+     bau_cards: bauCards
+   };
+ }
+
+ let msTribe, msPod, msRole, msChapLead, msNwobType;
+
+ function updateChapLeadOptions(selectedTribes) {
+   const allRows = rawData.rawRows || [];
+
+   const filteredRows = allRows.filter(r => {
+     return !selectedTribes || selectedTribes.length === 0 || selectedTribes.includes(r.tribe);
+   });
+
+   const availableChapLeads = [...new Set(filteredRows.map(r => r.aeChapLeadR).filter(c => c))]
+     .sort((a, b) => a.localeCompare(b));
+
+   if (msChapLead) {
+     msChapLead.updateOptions(availableChapLeads.map(c => ({ value: c, label: c })));
+   }
+ }
+
+ function initGlobalFilters() {
+   const tribes = rawData.tribes || [];
+   const allRows = rawData.rawRows || [];
+
+   const pods = [...new Set(allRows.map(r => r.pod).filter(p => p && p !== '-'))].sort((a, b) => a.localeCompare(b));
+   const roles = [...new Set(allRows.map(r => getEffectiveRole(r.roleL, r.roleH)).filter(r => r))].sort((a, b) => roleRank(a) - roleRank(b) || a.localeCompare(b));
+
+   const triggerUpdate = () => {
+     const sTribes = msTribe ? msTribe.getSelected() : [];
+     const sPods = msPod ? msPod.getSelected() : [];
+     const sRoles = msRole ? msRole.getSelected() : [];
+     const sChapLeads = msChapLead ? msChapLead.getSelected() : [];
+     const sNwobTypes = msNwobType ? msNwobType.getSelected() : [];
+
+     document.getElementById('sources-tribe-name').textContent = sTribes.length === 0 ? 'All Tribes' : sTribes.join(', ');
+     activeDashboardData = processData(sTribes, sPods, sRoles, sChapLeads, sNwobTypes);
+     renderAll();
+     
+     const targetTribes = sTribes.length > 0 ? sTribes : (rawData.tribes || []);
+     renderTribeStructureViews(targetTribes);
+   };
+
+   msTribe = buildCustomMultiselect('ms-tribe', tribes.map(t => ({ value: t, label: t })), 'All Tribes', (vals) => {
+     updateChapLeadOptions(vals);
+     triggerUpdate();
+   });
+
+   msPod = buildCustomMultiselect('ms-pod', pods.map(p => ({ value: p, label: p })), 'All PODs', triggerUpdate);
+   msRole = buildCustomMultiselect('ms-role', roles.map(r => ({ value: r, label: r })), 'All Roles', triggerUpdate);
+
+   msChapLead = buildCustomMultiselect('ms-chap-lead', [], 'All A&E CL', triggerUpdate);
+   updateChapLeadOptions([]);
+
+   msNwobType = buildCustomMultiselect('ms-nwob-type', [
+     { value: 'POD', label: 'POD' },
+     { value: 'BAU', label: 'BAU' },
+     { value: 'Others', label: 'Others' }
+   ], 'All Types', triggerUpdate);
+
+   document.addEventListener('click', () => {
+     document.querySelectorAll('.custom-multiselect').forEach(el => el.classList.remove('open'));
+   });
+
+   activeDashboardData = processData([], [], [], [], []);
+ }
+
+ function renderMetrics() {
+   const metrics = activeDashboardData.metrics || {};
+   const items = [
+     [
+       'TOTAL NO. OF RESOURCES',
+       fmt0(metrics.total_resources),
+       'Total Approved HC for Q4.',
+       fmt0(metrics.total_organic),
+       fmt0(metrics.total_inorganic)
+     ],
+     [
+       'TOTAL NO. OF ACTIVE RESOURCES',
+       fmt0(metrics.total_active_resources),
+       'Total Approved HC available by start of Q4.',
+       fmt0(metrics.active_organic),
+       fmt0(metrics.active_inorganic)
+     ],
+     [
+       'TOTAL NO. OF FOR HIRE',
+       fmt2(metrics.total_for_hire),
+       'Headcount of roles to be fulfilled by Q4.',
+       fmt2(metrics.for_hire_organic),
+       fmt2(metrics.for_hire_inorganic)
+     ]
+   ];
+
+   const html = items.map(item => `
+     <article class="metric">
+       <div class="label">${esc(item[0])}</div>
+       <div class="metric-value">${item[1]}</div>
+       <div class="scorecard-pills">
+         <span class="pill pill-blue">Organic: ${item[3]}</span>
+         <span class="pill pill-green">Inorganic: ${item[4]}</span>
+       </div>
+       <div class="metric-note">${esc(item[2])}</div>
+     </article>
+   `).join('');
+
+   document.getElementById('metrics').innerHTML = html;
+   const tsMetricsEl = document.getElementById('ts-metrics');
+   if (tsMetricsEl) {
+     tsMetricsEl.innerHTML = html;
+   }
+ }
+
+ function renderPodScorecard() {
+   const metrics = activeDashboardData.metrics || {};
+   const total = metrics.total_unique_pods || 0;
+   const podCount = metrics.pod_type_count || 0;
+   const bauCount = metrics.bau_type_count || 0;
+   const leadBuilders = metrics.total_lead_builders || 0;
+   const builders = metrics.total_builders || 0;
+
+   document.getElementById('pod-scorecard').innerHTML = `
+     <article class="metric">
+       <div class="label">TOTAL NO. OF PODS</div>
+       <div class="metric-value">${fmt0(total)}</div>
+       <div class="scorecard-pills">
+         <span class="pill pill-blue">POD: ${fmt0(podCount)}</span>
+         <span class="pill pill-green">BAU: ${fmt0(bauCount)}</span>
+       </div>
+       <div class="metric-note">Total POD count at the start of Q4.</div>
+     </article>
+
+     <article class="metric">
+       <div class="label">LEAD BUILDER COUNT</div>
+       <div class="metric-value">${fmt0(leadBuilders)}</div>
+       <div class="metric-note">Complete POD assumption is 1 Lead Builder is to 2 Builder per POD</div>
+     </article>
+
+     <article class="metric">
+       <div class="label">BUILDER COUNT</div>
+       <div class="metric-value">${fmt0(builders)}</div>
+       <div class="metric-note">Complete POD assumption is 1 Lead Builder is to 2 Builder per POD</div>
+     </article>
+   `;
+ }
+
+ function renderPodList() {
+   const rawRows = activeDashboardData.pod_raw_rows || [];
+   const roles = [...new Set(rawRows.map(row => getEffectiveRole(row.role_l, row.role_h)))]
+     .sort((a, b) => roleRank(a) - roleRank(b) || a.localeCompare(b));
+
+   const roleFilter = document.getElementById('pod-list-role-filter');
+   const nameSearchInput = document.getElementById('pod-name-search-filter');
+
+   roleFilter.innerHTML = '<option value="all">All Roles</option>' + 
+     roles.map(role => `<option value="${esc(role)}">${esc(role)}</option>`).join('');
+
+   function draw() {
+     const selectedRole = roleFilter.value;
+     const nameSearch = nameSearchInput.value.toLowerCase().trim();
+
+     const filteredRows = rawRows.filter(row => {
+       const roleName = getEffectiveRole(row.role_l, row.role_h);
+       const matchesRole = selectedRole === 'all' || roleName === selectedRole;
+       const matchesName = !nameSearch || row.pod.toLowerCase().includes(nameSearch);
+       return matchesRole && matchesName;
+     });
+
+     const podCategoryMap = {};
+     filteredRows.forEach(row => {
+       if (row.pod && !podCategoryMap[row.pod]) {
+         podCategoryMap[row.pod] = normalize(row.categoryQ) === 'bau';
+       }
+     });
+
+     const podNames = Object.keys(podCategoryMap).sort((a, b) => a.localeCompare(b));
+     document.getElementById('pod-list-total-badge').textContent = `Total PODs: ${podNames.length}`;
+
+     if (!podNames.length) {
+       document.getElementById('pod-list').innerHTML = '<tr><td colspan="3" class="empty">No matching PODs found.</td></tr>';
+       return;
+     }
+
+     const rowsHtml = [];
+     for (let i = 0; i < podNames.length; i += 3) {
+       const group = podNames.slice(i, i + 3);
+       rowsHtml.push(`
+         <tr>
+           ${group.map(pod => {
+             const isBau = podCategoryMap[pod];
+             const content = isBau 
+               ? `<span class="pod-item-bau">${esc(pod)}</span>`
+               : esc(pod);
+             return `<td>${content}</td>`;
+           }).join('')}
+           ${'<td></td>'.repeat(3 - group.length)}
+         </tr>
+       `);
+     }
+     document.getElementById('pod-list').innerHTML = rowsHtml.join('');
+   }
+
+   roleFilter.onchange = draw;
+   nameSearchInput.oninput = draw;
+   draw();
+ }
+
+ function renderRoleTable() {
+   const rows = activeDashboardData.role_headcount_summary || [];
+   document.getElementById('role-table').innerHTML = rows.map(row => `
+     <tr>
+       <td>${esc(row.role)}</td>
+       <td class="num">${fmt0(row.active_resources)}</td>
+       <td class="num">${fmt2(row.to_be_hired)}</td>
+     </tr>
+   `).join('');
+
+   const totals = activeDashboardData.role_headcount_totals || {};
+   document.getElementById('role-active-total').textContent = fmt0(totals.active_resources);
+   document.getElementById('role-hire-total').textContent = fmt2(totals.to_be_hired);
+ }
+
+ function renderResourceTable() {
+   const rows = (activeDashboardData.resource_assignments || []).slice();
+
+   const roles = [...new Set(rows.map(row => row.role))].sort((a, b) => roleRank(a) - roleRank(b) || a.localeCompare(b));
+   const pods = [...new Set(rows.map(row => row.pod))].sort((a, b) => a.localeCompare(b));
+
+   const roleFilter = document.getElementById('role-filter');
+   const podFilter = document.getElementById('pod-assignment-filter');
+   const nameFilter = document.getElementById('resource-name-filter');
+
+   roleFilter.innerHTML = '<option value="all">All Roles</option>' + roles.map(role => `<option value="${esc(role)}">${esc(role)}</option>`).join('');
+   podFilter.innerHTML = '<option value="all">All PODs</option>' + pods.map(pod => `<option value="${esc(pod)}">${esc(pod)}</option>`).join('');
+
+   function draw() {
+     const selectedRole = roleFilter.value;
+     const selectedPod = podFilter.value;
+     const nameSearch = nameFilter.value.toLowerCase().trim();
+
+     const visible = rows.filter(row => {
+       const matchesRole = selectedRole === 'all' || row.role === selectedRole;
+       const matchesPod = selectedPod === 'all' || row.pod === selectedPod;
+       const matchesName = !nameSearch || row.resource.toLowerCase().includes(nameSearch);
+       return matchesRole && matchesPod && matchesName;
+     });
+
+     const totalAllocationVal = visible.reduce((sum, row) => sum + (Number(row.allocation) || 0), 0);
+
+     document.getElementById('resource-allocation-summary').innerHTML = `
+       <div class="header-count-badge" style="display: inline-flex; align-items: center; gap: 8px;">
+         <span>TOTAL ALLOCATION:</span>
+         <strong style="color: var(--text-main); font-size: 14px;">${fmtAllocation(totalAllocationVal)} HC</strong>
+       </div>
+     `;
+
+     document.getElementById('resource-table-total-allocation').textContent = fmtAllocation(totalAllocationVal) + ' HC';
+
+     if (!visible.length) {
+       document.getElementById('resource-table').innerHTML = '<tr><td colspan="5" class="empty">No matching resources found.</td></tr>';
+       return;
+     }
+
+     let html = '';
+     let i = 0;
+
+     while (i < visible.length) {
+       const current = visible[i];
+       let span = 1;
+
+       while (
+         i + span < visible.length &&
+         visible[i + span].tribe === current.tribe &&
+         visible[i + span].resource === current.resource &&
+         visible[i + span].role === current.role
+       ) {
+         span++;
+       }
+
+       for (let j = 0; j < span; j++) {
+         const row = visible[i + j];
+         html += '<tr>';
+         if (j === 0) {
+           const rowspanAttr = span > 1 ? ` rowspan="${span}"` : '';
+           html += `<td${rowspanAttr}>${esc(current.tribe)}</td>`;
+           html += `<td${rowspanAttr}>${esc(current.resource)}</td>`;
+           html += `<td${rowspanAttr}>${esc(current.role)}</td>`;
+         }
+         html += `<td>${esc(row.pod)}</td>`;
+         html += `<td class="num">${fmtAllocation(row.allocation)}</td>`;
+         html += '</tr>';
+       }
+
+       i += span;
+     }
+
+     document.getElementById('resource-table').innerHTML = html;
+   }
+
+   roleFilter.onchange = draw;
+   podFilter.onchange = draw;
+   nameFilter.oninput = draw;
+   draw();
+ }
+
+ function renderHiringTable() {
+   const rows = activeDashboardData.for_hire_role_breakdown || [];
+   document.getElementById('hiring-table').innerHTML = rows.map(row => {
+     const podList = (row.pod_assignments || [])
+       .map(pod => `<li>${esc(pod)}</li>`)
+       .join('');
+
+     return `
+       <tr>
+         <td>${esc(row.role)}</td>
+         <td class="num">${fmt2(row.headcount)}</td>
+         <td>
+           ${podList ? `<ul class="hiring-pod-list">${podList}</ul>` : '—'}
+         </td>
+       </tr>
+     `;
+   }).join('');
+ }
+
+ function isPodComplete(pod) { return Boolean(pod.target_met); }
+
+ // HELPER TO RENDER CUTE GLASS PILL BADGE FOR ORGANIC (O) / INORGANIC (I)
+ function renderEmpTypePill(empType) {
+   const norm = normalize(empType);
+   if (norm === 'organic') {
+     return '<span class="tag-pill tag-pill-organic">(O)</span>';
+   } else if (norm === 'inorganic') {
+     return '<span class="tag-pill tag-pill-inorganic">(I)</span>';
+   }
+   return '';
+ }
+
+ function renderPodCard(pod) {
+   const complete = isPodComplete(pod);
+   const statusClass = complete ? 'complete' : 'incomplete';
+
+   const scorecard = (pod.role_scorecard || []).map(item => `
+     <div class="score">
+       <div class="score-number">${fmtAllocation(item.allocation)}</div>
+       <div class="score-label">${esc(item.role)}</div>
+     </div>
+   `).join('');
+
+   const assignments = (pod.assignments || []).slice()
+     .sort((a, b) => roleRank(a.role_l) - roleRank(b.role_l) || a.role_l.localeCompare(b.role_l) || a.resource.localeCompare(b.resource))
+     .map(row => {
+       const allocation = /tbd/i.test(row.resource) ? 0 : row.allocation;
+       const pillHtml = renderEmpTypePill(row.empType);
+       return `
+         <div class="assignment">
+           <span class="assignment-name">
+             <span>${esc(row.resource)}</span>${pillHtml}
+           </span>
+           <span class="assignment-role">${esc(row.role_l)} · ${fmtAllocation(allocation)} HC</span>
+         </div>
+       `;
+     }).join('');
+
+   return `
+     <article class="pod-card ${statusClass}">
+       <div class="pod-header">
+         <div>
+           <div class="pod-name">${esc(pod.pod)}</div>
+           <div class="pod-tribe">${esc(pod.tribe)}</div>
+         </div>
+         <span class="status ${statusClass}">${complete ? 'POD Complete' : 'POD Incomplete'}</span>
+       </div>
+       <div class="scorecard">${scorecard}</div>
+       <div class="assignments">${assignments}</div>
+     </article>
+   `;
+ }
+
+ function renderBauCard(bau) {
+   const complete = Boolean(bau.target_met);
+   const statusClass = complete ? 'complete' : 'incomplete';
+
+   const assignments = (bau.assignments || []).slice()
+     .sort((a, b) => roleRank(a.role_h) - roleRank(b.role_h) || a.role_h.localeCompare(b.role_h) || a.resource.localeCompare(b.resource))
+     .map(row => {
+       const allocation = /tbd/i.test(row.resource) ? 0 : row.allocation;
+       const pillHtml = renderEmpTypePill(row.empType);
+       return `
+         <div class="assignment">
+           <span class="assignment-name">
+             <span>${esc(row.resource)}</span>${pillHtml}
+           </span>
+           <span class="assignment-role">${esc(row.role_h)} · ${fmtAllocation(allocation)} HC</span>
+         </div>
+       `;
+     }).join('');
+
+   return `
+     <article class="pod-card ${statusClass}">
+       <div class="pod-header" style="margin-bottom: 12px;">
+         <div>
+           <div class="pod-name">${esc(bau.pod)}</div>
+           <div class="pod-tribe">${esc(bau.tribe)}</div>
+         </div>
+         <span class="status ${statusClass}">${complete ? 'BAU Complete' : 'BAU Incomplete'}</span>
+       </div>
+       <div class="assignments">${assignments}</div>
+     </article>
+   `;
+ }
+
+ function renderPods() {
+   const search = document.getElementById('pod-search').value.toLowerCase().trim();
+   const status = document.getElementById('status-filter').value;
+
+   const pods = (activeDashboardData.pod_cards || []).filter(pod => {
+     const matchesSearch = !search || pod.pod.toLowerCase().includes(search) || pod.assignments.some(row => row.resource.toLowerCase().includes(search));
+     const matchesStatus = status === 'all' || (status === 'complete' && isPodComplete(pod)) || (status === 'incomplete' && !isPodComplete(pod));
+     return matchesSearch && matchesStatus;
+   });
+
+   const complete = pods.filter(pod => isPodComplete(pod));
+   const incomplete = pods.filter(pod => !isPodComplete(pod));
+
+   document.getElementById('complete-grid').innerHTML = complete.length ? complete.map(renderPodCard).join('') : '<div class="empty">No PODs found.</div>';
+   document.getElementById('incomplete-grid').innerHTML = incomplete.length ? incomplete.map(renderPodCard).join('') : '<div class="empty">No PODs found.</div>';
+   document.getElementById('complete-count').textContent = ` (${complete.length})`;
+   document.getElementById('incomplete-count').textContent = ` (${incomplete.length})`;
+ }
+
+ function renderBaus() {
+   const search = document.getElementById('bau-search').value.toLowerCase().trim();
+   const status = document.getElementById('bau-status-filter').value;
+
+   const baus = (activeDashboardData.bau_cards || []).filter(bau => {
+     const matchesSearch = !search || bau.pod.toLowerCase().includes(search) || bau.assignments.some(row => row.resource.toLowerCase().includes(search));
+     const matchesStatus = status === 'all' || (status === 'complete' && bau.target_met) || (status === 'incomplete' && !bau.target_met);
+     return matchesSearch && matchesStatus;
+   });
+
+   const complete = baus.filter(b => b.target_met);
+   const incomplete = baus.filter(b => !b.target_met);
+
+   document.getElementById('bau-complete-grid').innerHTML = complete.length ? complete.map(renderBauCard).join('') : '<div class="empty">No BAUs found.</div>';
+   document.getElementById('bau-incomplete-grid').innerHTML = incomplete.length ? incomplete.map(renderBauCard).join('') : '<div class="empty">No BAUs found.</div>';
+   document.getElementById('bau-complete-count').textContent = ` (${complete.length})`;
+   document.getElementById('bau-incomplete-count').textContent = ` (${incomplete.length})`;
+ }
+
+ function setupAccordionLabels() {
+   const bindToggle = (detailsId, textId) => {
+     const details = document.getElementById(detailsId);
+     const label = document.getElementById(textId);
+     if (!details || !label) return;
+
+     const updateText = () => {
+       label.textContent = details.open ? 'Click to collapse' : 'Click to expand';
+     };
+
+     details.addEventListener('toggle', updateText);
+     updateText();
+   };
+
+   bindToggle('condition-details-el', 'condition-summary-state');
+   bindToggle('complete-group', 'complete-state');
+   bindToggle('incomplete-group', 'incomplete-state');
+   bindToggle('bau-condition-details-el', 'bau-condition-summary-state');
+   bindToggle('bau-complete-group', 'bau-complete-state');
+   bindToggle('bau-incomplete-group', 'bau-incomplete-state');
+ }
+
+ /* --- TRIBE STRUCTURE PAGE LOGIC --- */
+ function renderTribeStructureViews(selectedTribes) {
+   const tribesList = Array.isArray(selectedTribes) ? selectedTribes : [selectedTribes];
+   renderGeneralStructure(tribesList);
+   renderAEStructure(tribesList);
+ }
+
+ /* --- GENERAL STRUCTURE RENDERER (100% STRICT EXACT ROLE MATCHING FOR ALL LEADERSHIP / CHAPTER LEAD ROLES) --- */
+ function renderGeneralStructure(selectedTribes) {
+   const container = document.getElementById('general-structure-container');
+   const tribesList = Array.isArray(selectedTribes) ? selectedTribes : [selectedTribes];
+
+   let html = '';
+
+   tribesList.forEach(selectedTribe => {
+     const tribeRows = (rawData.rawRows || []).filter(r => r.tribe === selectedTribe);
+     if (!tribeRows.length) return;
+
+     const isDataTribe = normalize(selectedTribe) === 'data tribe';
+
+     const aeGroups = {};
+     tribeRows.forEach(r => {
+       const aeLead = clean(r.aeChapLeadR);
+       const podName = clean(r.pod);
+
+       if (!aeLead || aeLead.toUpperCase() === 'N/A' || aeLead.toUpperCase() === 'NOT APPLICABLE' || aeLead === '-') return;
+
+       if (!aeGroups[aeLead]) aeGroups[aeLead] = new Set();
+       
+       if (podName && podName !== '-' && podName.toUpperCase() !== 'N/A') {
+         aeGroups[aeLead].add(podName);
+       }
+     });
+
+     const aeLeads = Object.keys(aeGroups).filter(ae => aeGroups[ae].size > 0);
+     const colCount = aeLeads.length || 1;
+
+     // STRICT LOOKUP: EXACT CASE-INSENSITIVE EQUALITY MATCH ON COLUMN H (ROLE) OR COLUMN L (NEW NWOB ROLE)
+     const getRoleByTribeAndSourceRole = (exactRoleName) => {
+       const targetLower = exactRoleName.toLowerCase().trim();
+
+       const found = tribeRows.find(r => {
+         const nwob = (r.roleL || '').toLowerCase().trim();
+         const source = (r.roleH || '').toLowerCase().trim();
+         return nwob === targetLower || source === targetLower;
+       });
+
+       if (!found) return '—';
+       const res = clean(found.resource);
+       return (!res || res.toUpperCase() === 'N/A') ? '—' : res;
+     };
+
+     const rolesList = [
+       { label: 'Tribe Lead', exact: 'Tribe Lead' },
+       { label: 'Scrum Master Chapter Lead', exact: 'Scrum Master Chapter Lead' },
+       { label: 'Solutions Designer Chapter Lead', exact: 'Solutions Designer Chapter Lead' },
+       { label: 'Quality Assurance Chapter Lead', exact: 'Quality Assurance Chapter Lead' },
+       { label: 'Portfolio Manager', exact: 'Portfolio Manager' },
+       { label: 'Agile Coach', exact: 'Agile Coach' },
+       { label: 'Platform Manager', exact: 'Platform Manager' },
+       { label: 'Delivery Change Analyst', exact: 'Delivery Change Analyst' },
+       { label: 'Delivery Change Manager', exact: 'Delivery Change Manager' },
+       { label: 'Data Engineer Chapter Lead', exact: 'Data Engineer Chapter Lead' }
+     ];
+
+     if (!isDataTribe) {
+       const des = [...new Set(tribeRows.filter(r => (r.roleL || '').toLowerCase().trim() === 'data engineer' || (r.roleH || '').toLowerCase().trim() === 'data engineer').map(r => r.resource).filter(res => res && res.toUpperCase() !== 'N/A'))];
+       const das = [...new Set(tribeRows.filter(r => (r.roleL || '').toLowerCase().trim() === 'data analyst' || (r.roleH || '').toLowerCase().trim() === 'data analyst').map(r => r.resource).filter(res => res && res.toUpperCase() !== 'N/A'))];
+
+       rolesList.push({ 
+         label: 'Data Engineer', 
+         value: des.length > 0 ? des.join(' / ') : '—' 
+       });
+
+       rolesList.push({ 
+         label: 'Data Analyst', 
+         value: das.length > 0 ? das.join(' / ') : '—' 
+       });
+     }
+
+     html += `
+       <div class="deck-table-container">
+         <table class="deck-table">
+           <colgroup>
+             <col class="col-role">
+             ${'<col>'.repeat(colCount)}
+           </colgroup>
+           <thead>
+             <tr>
+               <th colspan="${colCount + 1}" class="tribe-header-banner">${esc(selectedTribe)}</th>
+             </tr>
+             <tr>
+               <th class="role-header-col">Role \\ Squad</th>
+               ${
+                 aeLeads.length > 0 
+                   ? aeLeads.map(ae => `
+                       <td class="pod-group-box">
+                         <ul>
+                           ${Array.from(aeGroups[ae]).map(pod => `<li>${esc(pod)}</li>`).join('')}
+                         </ul>
+                       </td>
+                     `).join('')
+                   : `<td class="pod-group-box">—</td>`
+               }
+             </tr>
+           </thead>
+           <tbody>
+     `;
+
+     rolesList.slice(0, 4).forEach(r => {
+       const val = r.value !== undefined ? r.value : getRoleByTribeAndSourceRole(r.exact);
+       html += `
+         <tr>
+           <th class="role-header-col">${esc(r.label)}</th>
+           <td colspan="${colCount}" class="merged-val-cell">${esc(val)}</td>
+         </tr>
+       `;
+     });
+
+     if (aeLeads.length > 0) {
+       html += `
+         <tr>
+           <th class="role-header-col">A&amp;E Chapter Lead</th>
+           ${aeLeads.map(ae => `<td class="merged-val-cell">${esc(ae)}</td>`).join('')}
+         </tr>
+       `;
+     } else {
+       html += `
+         <tr>
+           <th class="role-header-col">A&amp;E Chapter Lead</th>
+           <td colspan="${colCount}" class="merged-val-cell">—</td>
+       </tr>
+       `;
+     }
+
+     rolesList.slice(4).forEach(r => {
+       const val = r.value !== undefined ? r.value : getRoleByTribeAndSourceRole(r.exact);
+       html += `
+         <tr>
+           <th class="role-header-col">${esc(r.label)}</th>
+           <td colspan="${colCount}" class="merged-val-cell">${esc(val)}</td>
+         </tr>
+       `;
+     });
+
+     html += `
+           </tbody>
+         </table>
+       </div>
+     `;
+   });
+
+   container.innerHTML = html || '<div class="empty">No General Structure data available.</div>';
+ }
+
+ /* --- A&E SPECIFIC STRUCTURE RENDERER (DYNAMIC BUILDERS + PRODUCT OWNER INCLUDED HERE) --- */
+ function renderAEStructure(selectedTribes) {
+   const container = document.getElementById('ae-structure-container');
+   const tribesList = Array.isArray(selectedTribes) ? selectedTribes : [selectedTribes];
+
+   let html = '';
+
+   tribesList.forEach(selectedTribe => {
+     const tribeRows = (rawData.rawRows || []).filter(r => r.tribe === selectedTribe);
+     const isDataTribe = normalize(selectedTribe) === 'data tribe';
+
+     const aeMap = {};
+     tribeRows.forEach(r => {
+       const aeLead = clean(r.aeChapLeadR);
+       const podName = clean(r.pod);
+
+       if (!aeLead || aeLead.toUpperCase() === 'N/A' || aeLead.toUpperCase() === 'NOT APPLICABLE' || aeLead === '-') return;
+
+       if (!aeMap[aeLead]) aeMap[aeLead] = {};
+       if (podName && podName !== '-' && podName.toUpperCase() !== 'N/A') {
+         if (!aeMap[aeLead][podName]) aeMap[aeLead][podName] = [];
+         aeMap[aeLead][podName].push(r);
+       }
+     });
+
+     const aeLeads = Object.keys(aeMap);
+
+     aeLeads.forEach(aeLead => {
+       const pods = Object.keys(aeMap[aeLead]).sort();
+       if (!pods.length) return;
+
+       const colCount = pods.length;
+       
+       let maxBuilders = 2;
+       pods.forEach(podName => {
+         const rows = aeMap[aeLead][podName];
+         const count = rows.filter(r => r.roleL.toLowerCase().includes('builder') && !r.roleL.toLowerCase().includes('lead')).length;
+         if (count > maxBuilders) {
+           maxBuilders = count;
+         }
+       });
+
+       const roles = [
+         { key: 'sm', label: 'Scrum Master', query: 'scrum master' },
+         { key: 'sd', label: 'Solutions Designer', query: 'solutions designer' },
+         { key: 'qa', label: 'Quality Assurance Lead', query: 'quality assurance' },
+         { key: 'lb', label: 'Lead Builder', query: 'lead builder' }
+       ];
+
+       for (let b = 1; b <= maxBuilders; b++) {
+         roles.push({ key: `b${b}`, label: `Builder ${b}`, isBuilder: true, builderIndex: b - 1 });
+       }
+
+       if (isDataTribe) {
+         roles.push({ key: 'de', label: 'Data Engineer', query: 'data engineer' });
+         roles.push({ key: 'da', label: 'Data Analyst', query: 'data analyst' });
+       }
+
+       roles.push({ key: 'pe', label: 'Platform Engineer', query: 'platform engineer' });
+       
+       // PRODUCT OWNER IN A&E SPECIFIC STRUCTURE
+       roles.push({ key: 'po', label: 'Product Owner', query: 'product owner' });
+
+       const matrix = {};
+       roles.forEach(r => { matrix[r.key] = []; });
+
+       pods.forEach(podName => {
+         const rows = aeMap[aeLead][podName];
+         const builders = rows.filter(r => r.roleL.toLowerCase().includes('builder') && !r.roleL.toLowerCase().includes('lead'));
+
+         roles.forEach(roleObj => {
+           if (roleObj.isBuilder) {
+             const bResource = builders[roleObj.builderIndex] ? builders[roleObj.builderIndex].resource : 'N/A';
+             matrix[roleObj.key].push(bResource);
+           } else {
+             const match = rows.find(r => r.roleL.toLowerCase().includes(roleObj.query) || r.roleH.toLowerCase().includes(roleObj.query));
+             matrix[roleObj.key].push(match ? match.resource : 'N/A');
+           }
+         });
+       });
+
+       html += `
+         <div class="deck-table-container">
+           <table class="deck-table">
+             <colgroup>
+               <col class="col-role">
+               ${'<col>'.repeat(colCount)}
+             </colgroup>
+             <thead>
+               <tr>
+                 <th colspan="${colCount + 1}" class="tribe-header-banner">${esc(selectedTribe)}</th>
+               </tr>
+               <tr>
+                 <th class="role-header-col">Role \\ Squad</th>
+                 ${pods.map(p => `<td class="pod-item-header">${esc(p)}</td>`).join('')}
+               </tr>
+               <tr>
+                 <th class="role-header-col">A &amp; E Chapter Lead</th>
+                 <td colspan="${colCount}" class="merged-val-cell">${esc(aeLead)}</td>
+               </tr>
+             </thead>
+             <tbody>
+               ${roles.map(r => {
+                 const rowVals = matrix[r.key];
+                 let rowCellsHtml = '';
+                 let i = 0;
+
+                 while (i < rowVals.length) {
+                   let span = 1;
+                   while (i + span < rowVals.length && rowVals[i + span] === rowVals[i] && rowVals[i] !== 'N/A') {
+                     span++;
+                   }
+
+                   const val = rowVals[i];
+                   const isEmpty = val === 'N/A' || val === 'TBD' || !val;
+                   const cellClass = isEmpty ? 'empty-cell' : 'merged-val-cell';
+                   const colspanAttr = span > 1 ? ` colspan="${span}"` : '';
+
+                   rowCellsHtml += `<td${colspanAttr} class="${cellClass}">${esc(val)}</td>`;
+                   i += span;
+                 }
+
+                 return `
+                   <tr>
+                     <th class="role-header-col">${esc(r.label)}</th>
+                     ${rowCellsHtml}
+                   </tr>
+                 `;
+               }).join('')}
+             </tbody>
+           </table>
+         </div>
+       `;
+     });
+   });
+
+   container.innerHTML = html || '<div class="empty">No A&E Chapter Lead data available.</div>';
+ }
+
+ function renderAll() {
+   renderMetrics();
+   renderPodScorecard();
+   renderPodList();
+   renderRoleTable();
+   renderResourceTable();
+   renderHiringTable();
+   renderPods();
+   renderBaus();
+   setupAccordionLabels();
+ }
+
+ document.getElementById('pod-search').addEventListener('input', renderPods);
+ document.getElementById('status-filter').addEventListener('change', renderPods);
+ document.getElementById('bau-search').addEventListener('input', renderBaus);
+ document.getElementById('bau-status-filter').addEventListener('change', renderBaus);
+ 
+ document.getElementById('back-to-top').addEventListener('click', () => {
+   window.scrollTo({ top: 0, behavior: 'smooth' });
+ });
+
+ document.querySelectorAll('.tab').forEach(tab => {
+   tab.addEventListener('click', () => {
+     document.querySelectorAll('.tab').forEach(item => item.classList.toggle('active', item === tab));
+     document.querySelectorAll('.panel').forEach(panel => panel.classList.toggle('active', panel.id === `${tab.dataset.tab}-panel`));
+   });
+ });
+
+ // Navigation Setup
+ document.querySelectorAll('.page-tab-btn').forEach(btn => {
+   btn.addEventListener('click', () => {
+     document.querySelectorAll('.page-tab-btn').forEach(b => b.classList.remove('active'));
+     document.querySelectorAll('.page-view').forEach(p => p.classList.remove('active'));
+
+     btn.classList.add('active');
+     const pageId = `${btn.dataset.page}-page`;
+     document.getElementById(pageId).classList.add('active');
+     window.scrollTo({ top: 0, behavior: 'smooth' });
+   });
+ });
+
+ initGlobalFilters();
+ renderAll();
+ </script>
+</body>
+</html>
