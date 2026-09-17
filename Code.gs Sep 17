@@ -1,0 +1,77 @@
+const SPREADSHEET_ID = '17ffLkLnM63DQXV6j_st4aFvIgVAI816GVVGmnhpjRM8';
+const SOURCE_TAB = 'All Roles Editable';
+
+function doGet() {
+  return HtmlService.createTemplateFromFile('Index')
+    .evaluate()
+    .setTitle('Tribe NWOB Structure | VMO Resource Management')
+    .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
+}
+
+function clean(value) {
+  return value === null || value === undefined ? '' : String(value).trim();
+}
+
+function parseAllocation(value) {
+  if (value === '' || value === null || value === undefined || value === '-') {
+    return 1;
+  }
+  const number = Number(String(value).replace(/,/g, ''));
+  return Number.isFinite(number) ? number : 1;
+}
+
+function getDashboardData() {
+  const sheet = SpreadsheetApp.openById(SPREADSHEET_ID).getSheetByName(SOURCE_TAB);
+
+  if (!sheet) {
+    throw new Error('Sheet not found: ' + SOURCE_TAB);
+  }
+
+  const rawRows = [];
+  const tribeSet = new Set();
+  const chapLeadSet = new Set();
+
+  sheet.getDataRange().getValues().slice(1).forEach(row => {
+    const tribe = clean(row[1]);         // Column B (Tribe)
+    const pod = clean(row[3]);           // Column D (POD)
+    const resource = clean(row[5]);      // Column F (Resource Name)
+    const allocation = parseAllocation(row[6]); // Column G (Allocation)
+    const roleH = clean(row[7]);         // Column H (Source Role)
+    const empType = clean(row[8]);       // Column I (Employee Type: Organic / Inorganic)
+    const roleL = clean(row[11]);        // Column L (NEW NWOB ROLE)
+    const categoryQ = clean(row[16]);    // Column Q (BAU / POD Tag)
+    const aeChapLeadR = clean(row[17]);  // Column R (A&E Chap Lead)
+
+    if (tribe) tribeSet.add(tribe);
+    if (aeChapLeadR) chapLeadSet.add(aeChapLeadR);
+
+    // Include as long as Resource Name is NOT EMPTY
+    if (resource !== '' && resource !== '-') {
+      rawRows.push({
+        tribe,
+        pod,
+        resource,
+        allocation,
+        roleH,
+        empType,
+        roleL,
+        categoryQ,
+        aeChapLeadR
+      });
+    }
+  });
+
+  return {
+    metadata: {
+      title: 'POD Resource Governance Dashboard',
+      description: 'Resource and POD assignment view.',
+      generated_at: new Date().toISOString(),
+      source_title: 'AI PODS Source File - Final',
+      source_url: 'https://docs.google.com/spreadsheets/d/' + SPREADSHEET_ID,
+      source_tab: SOURCE_TAB
+    },
+    tribes: Array.from(tribeSet).sort((a, b) => a.localeCompare(b)),
+    aeChapLeads: Array.from(chapLeadSet).sort((a, b) => a.localeCompare(b)),
+    rawRows: rawRows
+  };
+}
